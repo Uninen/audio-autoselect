@@ -1,7 +1,7 @@
 {
-  "name": "tauri-vue-template",
+  "name": "audio-autoselect",
   "private": true,
-  "version": "0.3.0",
+  "version": "0.0.1",
   "scripts": {
     "dev": "RUST_BACKTRACE=1 concurrently -k \"tauri dev\" \"pnpm devtools\"",
     "build": "tauri build",

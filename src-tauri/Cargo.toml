@@ -1,11 +1,11 @@
 [package]
-name = "tauri_vue_template"
-version = "0.3.0"
-description = "A Tauri App"
+name = "audio_autoselect"
+version = "0.0.1"
+description = "Select preferred audio device automatically"
 authors = ["Ville Säävuori"]
 license = "MIT"
-repository = "https://github.com/Uninen/tauri-vue-template"
-default-run = "tauri_vue_template"
+repository = "https://github.com/Uninen/audio-autoselect"
+default-run = "audio_autoselect"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
