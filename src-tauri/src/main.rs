@@ -3,9 +3,10 @@
     windows_subsystem = "windows"
 )]
 
-// #[cfg(debug_assertions)]
-// #[cfg(target_os = "macos")]
-// embed_plist::embed_info_plist!("../Info.plist");
+extern crate anyhow;
+
+mod audio;
+use audio::{get_default_output_device, JsonError};
 
 use tauri::api::process::Command;
 use tauri::api::shell;
@@ -50,6 +51,11 @@ async fn list_output_devices() -> Result<serde_json::Value, String> {
 #[tauri::command]
 async fn list_input_devices() -> Result<serde_json::Value, String> {
     list_devices("input").await
+}
+
+#[tauri::command]
+async fn get_default_output_name() -> Result<serde_json::Value, JsonError> {
+    get_default_output_device()
 }
 
 fn run_applescript(script: &str) -> Result<String, String> {
@@ -105,12 +111,15 @@ async fn set_system_audio_output(name: &str) -> Result<String, String> {
 }
 
 fn main() {
+    get_default_output_device().unwrap();
+
     let ctx = tauri::generate_context!();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             list_output_devices,
             list_input_devices,
-            set_system_audio_output
+            set_system_audio_output,
+            get_default_output_name
         ])
         .menu(
             tauri::Menu::os_default("Tauri Vue Template").add_submenu(Submenu::new(

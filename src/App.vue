@@ -8,15 +8,27 @@ interface MediaDevice {
   uid: string
 }
 
-const defaultAudioDeviceName = 'MacBook Pro Speakers'
 const preferredAudioDeviceName = 'Beats Fit Pro'
-const currentlySelectedOutput = ref<string>(defaultAudioDeviceName)
+const currentOuputDeviceName = ref('MacBook Pro Speakers')
 const initialDelayDone = ref(false)
 const webMediaDevics = ref<MediaDeviceInfo[]>([])
 const outputDevices = ref<MediaDevice[]>([])
 const inputDevices = ref<MediaDevice[]>([])
 
+async function getDefaultOutput() {
+  console.log('>> getDefaultOutput')
+  invoke<{ name: string }>('get_default_output_name')
+    .then((result) => {
+      console.log('getDefaultOutput result', result)
+      currentOuputDeviceName.value = result.name
+    })
+    .catch((error) => {
+      console.error(error)
+    })
+}
+
 async function updateDevices() {
+  console.log('>> updateDevices')
   navigator.mediaDevices.enumerateDevices().then((devices) => {
     const newDevices: MediaDeviceInfo[] = []
     devices.forEach((device) => {
@@ -26,6 +38,7 @@ async function updateDevices() {
     })
     webMediaDevics.value = newDevices
     console.log('devices', devices)
+    getDefaultOutput()
   })
 
   invoke<MediaDevice[]>('list_output_devices')
@@ -41,10 +54,11 @@ async function updateDevices() {
 async function setAudioOutput(name: string) {
   console.log('setAudioOutput: ', name)
 
-  if (name !== currentlySelectedOutput.value) {
+  if (name !== currentOuputDeviceName.value) {
     invoke('set_system_audio_output', { name: name })
       .then(() => {
-        currentlySelectedOutput.value = name
+        // currentlySelectedOutput.value = name
+        getDefaultOutput()
         console.log('set_system_audio_output done')
       })
       .catch((error) => {
@@ -54,7 +68,7 @@ async function setAudioOutput(name: string) {
   } else {
     console.log(
       'set_system_audio_output SKIPPED. currently selected: ',
-      currentlySelectedOutput.value
+      currentOuputDeviceName.value
     )
   }
 }
@@ -63,7 +77,7 @@ onMounted(async () => {
   await navigator.mediaDevices.getUserMedia({ video: false, audio: true })
 
   updateDevices()
-  await setAudioOutput(defaultAudioDeviceName)
+  // await setAudioOutput(defaultAudioDeviceName)
 
   navigator.mediaDevices.ondevicechange = async () => {
     console.log('devices changed')
@@ -94,7 +108,7 @@ setTimeout(() => {
       <ul class="py-4 list-disc list-inside">
         <li v-for="device in outputDevices" :key="device.id">
           {{ device.name }}
-          <span v-if="currentlySelectedOutput === device.name"> (selected) </span>
+          <span v-if="currentOuputDeviceName === device.name"> (selected) </span>
         </li>
       </ul>
     </div>
