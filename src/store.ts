@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/tauri'
+import { getCurrent } from '@tauri-apps/api/window'
 
 export const useStore = defineStore('store', () => {
   const systemDefaultAudioDeviceName = 'MacBook Pro Speakers'
@@ -10,6 +11,7 @@ export const useStore = defineStore('store', () => {
   const oldDeviceCount = ref(0)
   const outputDeviceCount = computed(() => outputDevices.value.length)
   const furHatDebounce = ref(false)
+  const isInited = ref(false)
 
   async function getDefaultOutput() {
     console.log('>> getDefaultOutput')
@@ -95,11 +97,21 @@ export const useStore = defineStore('store', () => {
     }
   }
 
+  function quitApp() {
+    const window = getCurrent()
+    window?.close()
+  }
+
   async function init() {
     console.log('Initing app')
+    const window = getCurrent()
+
     currentOuputDeviceName.value = systemDefaultAudioDeviceName
 
-    // await navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+    // FIXME: this doesnt work w/o open Wry Window, hence the DIY flash screen
+    await navigator.mediaDevices.getUserMedia({ video: false, audio: true })
+    window?.hide()
+
     updateDevices()
     getDefaultOutput()
     navigator.mediaDevices.ondevicechange = (event) => {
@@ -108,10 +120,11 @@ export const useStore = defineStore('store', () => {
 
     setTimeout(() => {
       initialDelayDone.value = true
+      isInited.value = true
       console.log('initial delay done')
     }, 2000)
     console.log('App inited')
   }
 
-  return { init, outputDevices, currentOuputDeviceName, initialDelayDone }
+  return { init, isInited, outputDevices, currentOuputDeviceName, initialDelayDone, quitApp }
 })

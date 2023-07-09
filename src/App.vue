@@ -2,13 +2,12 @@
 import { useStore } from './store'
 
 const store = useStore()
-
-console.log('Hello App.vue')
+const isInited = computed(() => store.isInited)
 </script>
 
 <template>
-  <div class="flex flex-col p-2">
-    <div>
+  <div class="flex flex-col h-full p-2">
+    <div v-if="isInited">
       <h3>Output devices</h3>
 
       <ul class="py-4 list-disc list-inside">
@@ -17,6 +16,9 @@ console.log('Hello App.vue')
           <span v-if="store.currentOuputDeviceName === device"> (selected) </span>
         </li>
       </ul>
+
+      <button @click="store.quitApp"> Quit </button>
     </div>
+    <div v-else class="flex items-center justify-center flex-1 w-full h-full"> Good Hello! </div>
   </div>
 </template>

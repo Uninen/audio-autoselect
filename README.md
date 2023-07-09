@@ -4,15 +4,16 @@ A simple macOS program for autoselecting desired audio interface as default inpu
 
 I needed this because macOS often doesn't set my Bluetooth Beats Fit Pros as default device when I connect them so every time I jump into a Google Meet or Slack Huddle I need to manually first open up System Settings, select Audio tab, then select the correct input/output, and then refresh the browser window. As long as this app is running, the defaults are set automatically every time I connect the audio device. [See docs](docs/index.md) for details.
 
-This project is in very aplha status. YMMV.
+This project is in very aplha status but it works when `systemDefaultAudioDeviceName` and `preferredAudioDeviceName` are set properly in the store. YMMV.
 
 ## TODO
 
-- System tray window
+- Configurable preferences
 - Remember user preferences
 - Initial setup mode w/ docs
 - App icon
 - Tests
+- DONE: System tray
 
 ## Developing
 

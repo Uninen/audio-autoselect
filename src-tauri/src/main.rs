@@ -1,4 +1,5 @@
 extern crate anyhow;
+
 mod audio;
 use audio::{get_default_output_device, get_output_devices, JsonError};
 
@@ -176,6 +177,7 @@ fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
             .unwrap()
     }
 }
+
 fn main() {
     get_default_output_device().unwrap();
 
