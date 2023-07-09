@@ -10,6 +10,11 @@
     "beforeBuildCommand": "pnpm vite:build"
   },
   "tauri": {
+    "systemTray": {
+      "iconPath": "icons/icon.png",
+      "iconAsTemplate": true,
+      "menuOnLeftClick": false
+    },
     "bundle": {
       "active": true,
       "targets": "all",
@@ -36,11 +41,6 @@
         "signingIdentity": null,
         "providerShortName": null,
         "entitlements": null
-      },
-      "windows": {
-        "certificateThumbprint": null,
-        "digestAlgorithm": "sha256",
-        "timestampUrl": ""
       }
     },
     "updater": {
@@ -56,13 +56,17 @@
         "execute": true
       }
     },
+    "macOSPrivateApi": true,
     "windows": [
       {
         "title": "Audio Autoselect",
-        "width": 800,
-        "height": 600,
-        "resizable": true,
-        "fullscreen": false
+        "width": 400,
+        "height": 350,
+        "resizable": false,
+        "fullscreen": false,
+        "transparent": true,
+        "decorations": false,
+        "visible": false
       }
     ],
     "security": {

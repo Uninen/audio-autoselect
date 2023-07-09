@@ -1,16 +1,14 @@
-#![cfg_attr(
-    all(not(debug_assertions), target_os = "windows"),
-    windows_subsystem = "windows"
-)]
-
 extern crate anyhow;
-
 mod audio;
 use audio::{get_default_output_device, get_output_devices, JsonError};
 
 use tauri::api::process::Command;
 use tauri::api::shell;
-use tauri::{CustomMenuItem, Manager, Menu, Submenu};
+use tauri::{
+    ActivationPolicy, App, AppHandle, CustomMenuItem, Manager, Menu, PhysicalPosition, Submenu,
+    SystemTray, SystemTrayEvent,
+};
+use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
 
 #[tauri::command]
 async fn list_devices(input_type: &str) -> Result<serde_json::Value, String> {
@@ -111,10 +109,79 @@ async fn set_system_audio_output(name: &str) -> Result<String, String> {
     run_applescript(&script)
 }
 
+fn app_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
+    let main_window = app.get_window("main").expect("Main window not found");
+    // let _ = win.set_always_on_top(true);
+
+    #[cfg(target_os = "macos")]
+    {
+        app.set_activation_policy(ActivationPolicy::Accessory);
+        apply_vibrancy(
+            &main_window,
+            NSVisualEffectMaterial::HudWindow,
+            Some(NSVisualEffectState::Active),
+            Some(8.0),
+        )
+        .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+    }
+
+    #[cfg(debug_assertions)]
+    {
+        main_window.open_devtools();
+    }
+
+    Ok(())
+}
+
+fn handle_tray_event(app: &AppHandle, event: SystemTrayEvent) {
+    let window = app.get_window("main").unwrap();
+
+    if let SystemTrayEvent::LeftClick { position, .. } = event {
+        let win_outer_size = window.outer_size().unwrap();
+
+        if window.is_visible().unwrap() {
+            window.hide().unwrap();
+            window.emit("window:hidden", false).unwrap();
+        } else {
+            window.show().unwrap();
+            window.set_focus().unwrap();
+        }
+
+        window
+            .set_position(PhysicalPosition {
+                x: position.x,
+                y: position.y,
+            })
+            .unwrap();
+
+        let current_monitor = window.current_monitor().unwrap().unwrap();
+        let screen_size = current_monitor.size();
+        let screen_position = current_monitor.position();
+
+        let y = if position.y > screen_size.height as f64 / 2.0 {
+            position.y - win_outer_size.height as f64
+        } else {
+            position.y as f64
+        };
+
+        window
+            .set_position(PhysicalPosition {
+                x: f64::min(
+                    position.x - win_outer_size.width as f64 / 2.0,
+                    (screen_position.x as f64 + screen_size.width as f64)
+                        - win_outer_size.width as f64,
+                ),
+                y,
+            })
+            .unwrap()
+    }
+}
 fn main() {
     get_default_output_device().unwrap();
 
     let ctx = tauri::generate_context!();
+    let tray = SystemTray::new();
+
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             list_output_devices,
@@ -142,14 +209,9 @@ fn main() {
                 _ => {}
             }
         })
-        .setup(|_app| {
-            #[cfg(debug_assertions)]
-            {
-                let main_window = _app.get_window("main").unwrap();
-                main_window.open_devtools();
-            }
-            Ok(())
-        })
+        .system_tray(tray)
+        .on_system_tray_event(handle_tray_event)
+        .setup(app_setup)
         .run(ctx)
         .expect("error while running tauri application");
 }
