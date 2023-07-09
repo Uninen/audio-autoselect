@@ -52,12 +52,65 @@ async fn list_input_devices() -> Result<serde_json::Value, String> {
     list_devices("input").await
 }
 
+fn run_applescript(script: &str) -> Result<String, String> {
+    let output = Command::new("osascript").args(&["-e", script]).output();
+
+    match output {
+        Ok(output) => Ok(output.stdout),
+
+        Err(_) => Err("Applescript execution failed".to_string()),
+    }
+}
+
+#[tauri::command]
+async fn set_system_audio_output(name: &str) -> Result<String, String> {
+    let script = format!(
+        r#"
+        set myDevice to "{}"
+
+        tell application "System Settings"
+            quit
+            delay 0.2
+            activate
+            -- set visible of application process "System Settings" to false
+            delay 0.2
+            
+            tell application "System Events"
+                
+                delay 0.2
+                keystroke "Sound"
+                delay 1
+                
+                set theRows to (every row of table 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" of application process "System Settings")
+                
+                repeat with aRow in theRows
+                    try
+                        if name of first item of static text of group 1 of UI element 1 of aRow is equal to myDevice then
+                            set selected of aRow to true
+                            exit repeat
+                        end if
+                    on error
+                        display dialog "Error setting output sound to " & device
+                    end try
+                end repeat
+            end tell
+            delay 2
+            quit
+        end tell
+        "#,
+        name
+    );
+
+    run_applescript(&script)
+}
+
 fn main() {
     let ctx = tauri::generate_context!();
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             list_output_devices,
-            list_input_devices
+            list_input_devices,
+            set_system_audio_output
         ])
         .menu(
             tauri::Menu::os_default("Tauri Vue Template").add_submenu(Submenu::new(

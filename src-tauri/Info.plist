@@ -3,6 +3,8 @@
 <plist version="1.0">
     <dict>
         <key>NSMicrophoneUsageDescription</key>
-        <string>Request microphone access for WebRTC</string>
+        <string>Request microphone access for application</string>
+        <key>NSBluetoothAlwaysUsageDescription</key>
+        <string>Request bluetooth access for application</string>
     </dict>
 </plist>
