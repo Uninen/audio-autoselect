@@ -37,6 +37,30 @@ pub fn get_default_output_device() -> Result<serde_json::Value, JsonError> {
     Ok(json!({ "name": device_name }))
 }
 
+pub fn get_output_devices() -> Result<serde_json::Value, JsonError> {
+    let host = cpal::default_host();
+    let devices = match host.output_devices() {
+        Ok(devices) => devices,
+        Err(e) => {
+            return Err(JsonError {
+                message: format!("Failed to get devices: {:?}", e),
+            })
+        }
+    };
+    let device_names: Result<Vec<_>, _> = devices
+        .map(|device| match device.name() {
+            Ok(name) => Ok(name),
+            Err(e) => Err(JsonError {
+                message: format!("Failed to get device name: {:?}", e),
+            }),
+        })
+        .collect();
+    match device_names {
+        Ok(names) => Ok(json!(names)),
+        Err(e) => Err(e),
+    }
+}
+
 // pub fn enumerate_audio_devices() -> Result<(), anyhow::Error> {
 //     println!("Supported hosts:\n  {:?}", cpal::ALL_HOSTS);
 //     let available_hosts = cpal::available_hosts();

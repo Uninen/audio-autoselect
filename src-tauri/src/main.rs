@@ -6,7 +6,7 @@
 extern crate anyhow;
 
 mod audio;
-use audio::{get_default_output_device, JsonError};
+use audio::{get_default_output_device, get_output_devices, JsonError};
 
 use tauri::api::process::Command;
 use tauri::api::shell;
@@ -44,8 +44,8 @@ async fn list_devices(input_type: &str) -> Result<serde_json::Value, String> {
 }
 
 #[tauri::command]
-async fn list_output_devices() -> Result<serde_json::Value, String> {
-    list_devices("output").await
+async fn list_output_devices() -> Result<serde_json::Value, JsonError> {
+    get_output_devices()
 }
 
 #[tauri::command]
@@ -70,22 +70,21 @@ fn run_applescript(script: &str) -> Result<String, String> {
 
 #[tauri::command]
 async fn set_system_audio_output(name: &str) -> Result<String, String> {
+    //             -- set visible of application process "System Settings" to false
+
     let script = format!(
         r#"
         set myDevice to "{}"
 
         tell application "System Settings"
             quit
-            delay 0.2
+            delay 0.3
             activate
-            -- set visible of application process "System Settings" to false
-            delay 0.2
+            delay 0.3
             
             tell application "System Events"
-                
-                delay 0.2
                 keystroke "Sound"
-                delay 1
+                delay 0.5
                 
                 set theRows to (every row of table 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" of application process "System Settings")
                 
@@ -100,7 +99,9 @@ async fn set_system_audio_output(name: &str) -> Result<String, String> {
                     end try
                 end repeat
             end tell
-            delay 2
+
+            delay 1
+            activate
             quit
         end tell
         "#,
