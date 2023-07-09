@@ -3,21 +3,62 @@
     windows_subsystem = "windows"
 )]
 
+// #[cfg(debug_assertions)]
+// #[cfg(target_os = "macos")]
+// embed_plist::embed_info_plist!("../Info.plist");
+
+use tauri::api::process::Command;
 use tauri::api::shell;
 use tauri::{CustomMenuItem, Manager, Menu, Submenu};
 
 #[tauri::command]
-fn backend_add(number: i32) -> i32 {
-    // Note: these commands block the main thread and hang the UI until they return.
-    // If you need to run a long-running task, use async command instead.
-    println!("Backend was called with an argument: {}", number);
-    number + 2
+async fn list_devices(input_type: &str) -> Result<serde_json::Value, String> {
+    let output = Command::new("SwitchAudioSource")
+        .args(&["-a", "-t", input_type, "-f", "json"])
+        .output();
+
+    match output {
+        Ok(output) => {
+            if output.status.success() {
+                let lines: Vec<String> = output.stdout.split('\n').map(|s| s.to_string()).collect();
+
+                let mut json_vec: Vec<serde_json::Value> = Vec::new();
+                for line in lines {
+                    let trimmed = line.trim();
+                    if trimmed.is_empty() {
+                        continue;
+                    }
+                    let json: serde_json::Value = serde_json::from_str(&trimmed)
+                        .map_err(|err| format!("Failed to parse JSON: {}", err))?;
+                    json_vec.push(json);
+                }
+
+                Ok(serde_json::json!(json_vec))
+            } else {
+                Err(output.stderr)
+            }
+        }
+        Err(_) => Err("Command not found".to_string()),
+    }
+}
+
+#[tauri::command]
+async fn list_output_devices() -> Result<serde_json::Value, String> {
+    list_devices("output").await
+}
+
+#[tauri::command]
+async fn list_input_devices() -> Result<serde_json::Value, String> {
+    list_devices("input").await
 }
 
 fn main() {
     let ctx = tauri::generate_context!();
     tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![backend_add])
+        .invoke_handler(tauri::generate_handler![
+            list_output_devices,
+            list_input_devices
+        ])
         .menu(
             tauri::Menu::os_default("Tauri Vue Template").add_submenu(Submenu::new(
                 "Help",

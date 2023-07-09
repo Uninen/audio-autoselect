@@ -1,7 +1,7 @@
 {
   "package": {
-    "productName": "Tauri Vue Template",
-    "version": "0.3.0"
+    "productName": "Audio Autoselect",
+    "version": "0.0.1"
   },
   "build": {
     "distDir": "../dist",
@@ -47,11 +47,18 @@
       "active": false
     },
     "allowlist": {
-      "all": true
+      "all": true,
+      "window": {
+        "all": true
+      },
+      "shell": {
+        "all": true,
+        "execute": true
+      }
     },
     "windows": [
       {
-        "title": "Tauri Vue Template",
+        "title": "Audio Autoselect",
         "width": 800,
         "height": 600,
         "resizable": true,
