@@ -4,14 +4,14 @@ const resolve = require('path').resolve
 
 module.exports = {
   content: [resolve(__dirname, 'index.html'), resolve(__dirname, 'src/**/*.{vue,ts}')],
-  // theme: {
-  //   extend: {
-  //     // here's how to extend fonts if needed
-  //     fontFamily: {
-  //       sans: [...defaultTheme.fontFamily.sans],
-  //     },
-  //   },
-  // },
+  theme: {
+    extend: {
+      // here's how to extend fonts if needed
+      fontFamily: {
+        sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont'],
+      },
+    },
+  },
   plugins: [
     // require('@tailwindcss/aspect-ratio'),
     // require('@tailwindcss/line-clamp'),

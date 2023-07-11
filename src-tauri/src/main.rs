@@ -2,13 +2,11 @@ extern crate anyhow;
 
 mod audio;
 use audio::{get_default_output_device, get_output_devices, JsonError};
-
 use tauri::api::process::Command;
-use tauri::api::shell;
 use tauri::{
-    ActivationPolicy, App, AppHandle, CustomMenuItem, Manager, Menu, PhysicalPosition, Submenu,
-    SystemTray, SystemTrayEvent,
+    ActivationPolicy, App, AppHandle, Manager, PhysicalPosition, SystemTray, SystemTrayEvent,
 };
+use window_shadows::set_shadow;
 use window_vibrancy::{apply_vibrancy, NSVisualEffectMaterial, NSVisualEffectState};
 
 #[tauri::command]
@@ -112,19 +110,18 @@ async fn set_system_audio_output(name: &str) -> Result<String, String> {
 
 fn app_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     let main_window = app.get_window("main").expect("Main window not found");
-    // let _ = win.set_always_on_top(true);
+    let _ = main_window.set_always_on_top(true);
 
-    #[cfg(target_os = "macos")]
-    {
-        app.set_activation_policy(ActivationPolicy::Accessory);
-        apply_vibrancy(
-            &main_window,
-            NSVisualEffectMaterial::HudWindow,
-            Some(NSVisualEffectState::Active),
-            Some(8.0),
-        )
-        .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
-    }
+    // Set window to have no Dock icon
+    app.set_activation_policy(ActivationPolicy::Accessory);
+    apply_vibrancy(
+        &main_window,
+        NSVisualEffectMaterial::HudWindow,
+        Some(NSVisualEffectState::Active),
+        Some(8.0),
+    )
+    .expect("Unsupported platform! 'apply_vibrancy' is only supported on macOS");
+    set_shadow(&main_window, false).unwrap();
 
     #[cfg(debug_assertions)]
     {
@@ -191,26 +188,6 @@ fn main() {
             set_system_audio_output,
             get_default_output_name
         ])
-        .menu(
-            tauri::Menu::os_default("Tauri Vue Template").add_submenu(Submenu::new(
-                "Help",
-                Menu::with_items([CustomMenuItem::new(
-                    "Online Documentation",
-                    "Online Documentation",
-                )
-                .into()]),
-            )),
-        )
-        .on_menu_event(|event| {
-            let event_name = event.menu_item_id();
-            match event_name {
-                "Online Documentation" => {
-                    let url = "https://github.com/Uninen/tauri-vue-template".to_string();
-                    shell::open(&event.window().shell_scope(), url, None).unwrap();
-                }
-                _ => {}
-            }
-        })
         .system_tray(tray)
         .on_system_tray_event(handle_tray_event)
         .setup(app_setup)

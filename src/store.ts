@@ -3,6 +3,8 @@ import { invoke } from '@tauri-apps/api/tauri'
 import { getCurrent } from '@tauri-apps/api/window'
 
 export const useStore = defineStore('store', () => {
+  const currentPage = ref<'splash' | 'main' | 'settings'>('splash')
+
   const systemDefaultAudioDeviceName = 'MacBook Pro Speakers'
   const preferredAudioDeviceName = 'Beats Fit Pro'
   const currentOuputDeviceName = ref('')
@@ -121,10 +123,19 @@ export const useStore = defineStore('store', () => {
     setTimeout(() => {
       initialDelayDone.value = true
       isInited.value = true
+      currentPage.value = 'main'
       console.log('initial delay done')
     }, 2000)
     console.log('App inited')
   }
 
-  return { init, isInited, outputDevices, currentOuputDeviceName, initialDelayDone, quitApp }
+  return {
+    init,
+    isInited,
+    outputDevices,
+    currentOuputDeviceName,
+    initialDelayDone,
+    quitApp,
+    currentPage,
+  }
 })

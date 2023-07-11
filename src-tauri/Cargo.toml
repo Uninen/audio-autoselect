@@ -21,6 +21,7 @@ embed_plist = "1.2.2"
 cpal = "0.15.2"
 anyhow = "1.0.71"
 window-vibrancy = "0.4.0"
+window-shadows = "0.2.1"
 
 [features]
 # by default Tauri runs in production mode

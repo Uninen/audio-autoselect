@@ -13,3 +13,7 @@ For Web apps, there's also a third option, which is to use Web Audio APIs and `n
 After connecting a bluetooth headset and set it manually to be the default output, the device shows up correctly with both CoreAudio and Web APIs. But before interacting with the device manually (ie. setting it as output or input from the System Settings), bluetooth devices are completely invisible to both CoreAudio and Web APIs. It's not clear if this is a macOS bug or is it by design.
 
 Again, this restriction can be worked around by using AppleScript. This feels like a very ugly hack, but it does work.
+
+## Links
+
+- [Apple Human Interface Guidelines](https://developer.apple.com/design/human-interface-guidelines)

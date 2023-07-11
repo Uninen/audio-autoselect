@@ -1,4 +1,5 @@
 /// <reference types="vitest" />
+import * as path from 'path'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
 import AutoImport from 'unplugin-auto-import/vite'
@@ -9,7 +10,12 @@ export default defineConfig({
   plugins: [
     vue(),
     AutoImport({
-      imports: ['vue'],
+      imports: [
+        'vue',
+        {
+          '@/store': ['useStore'],
+        },
+      ],
       dts: './src/auto-imports.d.ts',
       eslintrc: {
         enabled: true,
@@ -17,6 +23,11 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   clearScreen: false,
   envPrefix: ['VITE_', 'TAURI_'],
   server: {
