@@ -10,6 +10,9 @@ module.exports = {
       fontFamily: {
         sans: ['ui-sans-serif', 'system-ui', '-apple-system', 'BlinkMacSystemFont'],
       },
+      colors: {
+        primary: '#3773D3',
+      },
     },
   },
   plugins: [

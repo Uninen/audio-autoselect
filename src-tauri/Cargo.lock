@@ -232,7 +232,7 @@ checksum = "1181e1e0d1fce796a03db1ae795d67167da795f9cf4a39c37589e85ef57f26d3"
 
 [[package]]
 name = "audio_autoselect"
-version = "0.0.1"
+version = "0.0.2"
 dependencies = [
  "anyhow",
  "cpal",
@@ -241,6 +241,7 @@ dependencies = [
  "serde_json",
  "tauri",
  "tauri-build",
+ "tauri-plugin-store",
  "window-shadows",
  "window-vibrancy",
 ]
@@ -3691,6 +3692,18 @@ dependencies = [
  "syn 1.0.109",
  "tauri-codegen",
  "tauri-utils",
+]
+
+[[package]]
+name = "tauri-plugin-store"
+version = "0.0.0"
+source = "git+https://github.com/tauri-apps/plugins-workspace?branch=v1#c009cb383f3758b2f6889e601ce5c97e331fae89"
+dependencies = [
+ "log",
+ "serde",
+ "serde_json",
+ "tauri",
+ "thiserror",
 ]
 
 [[package]]

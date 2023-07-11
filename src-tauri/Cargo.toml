@@ -1,6 +1,6 @@
 [package]
 name = "audio_autoselect"
-version = "0.0.1"
+version = "0.0.2"
 description = "Select preferred audio device automatically"
 authors = ["Ville Säävuori"]
 license = "MIT"
@@ -22,6 +22,7 @@ cpal = "0.15.2"
 anyhow = "1.0.71"
 window-vibrancy = "0.4.0"
 window-shadows = "0.2.1"
+tauri-plugin-store = { git = "https://github.com/tauri-apps/plugins-workspace", branch = "v1" }
 
 [features]
 # by default Tauri runs in production mode

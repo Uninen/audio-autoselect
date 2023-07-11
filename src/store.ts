@@ -1,12 +1,14 @@
 import { defineStore } from 'pinia'
 import { invoke } from '@tauri-apps/api/tauri'
 import { getCurrent } from '@tauri-apps/api/window'
+import { Store } from 'tauri-plugin-store-api'
 
 export const useStore = defineStore('store', () => {
+  const appSettings = new Store('autoselect-settings.json')
   const currentPage = ref<'splash' | 'main' | 'settings'>('splash')
-
-  const systemDefaultAudioDeviceName = 'MacBook Pro Speakers'
-  const preferredAudioDeviceName = 'Beats Fit Pro'
+  const setupDone = ref(false)
+  const systemDefaultAudioDeviceName = ref('')
+  const preferredAudioDeviceName = ref('')
   const currentOuputDeviceName = ref('')
   const initialDelayDone = ref(false)
   const outputDevices = ref<string[]>([])
@@ -86,8 +88,8 @@ export const useStore = defineStore('store', () => {
           console.warn('device was maybe SoundADDED')
           getDefaultOutput()
           console.warn('currentOuputDeviceName: ', currentOuputDeviceName.value)
-          if (currentOuputDeviceName.value !== preferredAudioDeviceName) {
-            setAudioOutput(preferredAudioDeviceName)
+          if (currentOuputDeviceName.value !== preferredAudioDeviceName.value) {
+            setAudioOutput(preferredAudioDeviceName.value)
           }
           setTimeout(() => {
             furHatDebounce.value = false
@@ -104,11 +106,34 @@ export const useStore = defineStore('store', () => {
     window?.close()
   }
 
+  async function loadSettings() {
+    setupDone.value = (await appSettings.get<boolean>('setupDone')) ?? false
+
+    systemDefaultAudioDeviceName.value =
+      (await appSettings.get('systemDefaultAudioDeviceName')) ?? 'MacBook Pro Speakers'
+    preferredAudioDeviceName.value =
+      (await appSettings.get('preferredAudioDeviceName')) ?? 'Beats Fit Pro'
+  }
+
+  async function saveSettings() {
+    await appSettings.set('setupDone', true)
+    await appSettings.set('systemDefaultAudioDeviceName', systemDefaultAudioDeviceName.value)
+    await appSettings.set('preferredAudioDeviceName', preferredAudioDeviceName.value)
+    await appSettings.save()
+    currentPage.value = 'main'
+  }
+
+  function setPage(page: 'splash' | 'main' | 'settings') {
+    currentPage.value = page
+  }
+
   async function init() {
     console.log('Initing app')
+    loadSettings()
+
     const window = getCurrent()
 
-    currentOuputDeviceName.value = systemDefaultAudioDeviceName
+    currentOuputDeviceName.value = systemDefaultAudioDeviceName.value
 
     // FIXME: this doesnt work w/o open Wry Window, hence the DIY flash screen
     await navigator.mediaDevices.getUserMedia({ video: false, audio: true })
@@ -123,7 +148,13 @@ export const useStore = defineStore('store', () => {
     setTimeout(() => {
       initialDelayDone.value = true
       isInited.value = true
-      currentPage.value = 'main'
+      if (!setupDone.value) {
+        currentPage.value = 'settings'
+      } else {
+        currentPage.value = 'settings'
+        // currentPage.value = 'main'
+      }
+
       console.log('initial delay done')
     }, 2000)
     console.log('App inited')
@@ -137,5 +168,10 @@ export const useStore = defineStore('store', () => {
     initialDelayDone,
     quitApp,
     currentPage,
+    saveSettings,
+    setPage,
+    systemDefaultAudioDeviceName,
+    preferredAudioDeviceName,
+    setupDone,
   }
 })

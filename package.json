@@ -1,7 +1,7 @@
 {
   "name": "audio-autoselect",
   "private": true,
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "dev": "RUST_BACKTRACE=1 concurrently -k \"tauri dev\" \"pnpm devtools\"",
     "build": "tauri build",
@@ -16,6 +16,7 @@
   "dependencies": {
     "@tauri-apps/api": "1.4.0",
     "pinia": "2.1.4",
+    "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1",
     "vue": "3.3.4"
   },
   "devDependencies": {

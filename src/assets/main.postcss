@@ -34,7 +34,15 @@ p {
 }
 
 .btn {
-  @apply bg-white/[24%] text-white/80 px-2 py-[0px] rounded-md my-4 border border-white/20 inline-block font-medium;
+  @apply bg-white/[24%] text-white/80 px-2 py-0 rounded-md my-4 border border-white/20 flex font-semibold h-[20px] items-center justify-center text-[13px] min-w-[75px];
+}
+
+.primary {
+  @apply !bg-primary/100 !text-white border-zinc-400/10;
+}
+
+input {
+  @apply bg-white/[5%] text-white px-2 py-0 border-b border-white/10;
 }
 
 /* Borrowed from tauri-create-app styles */

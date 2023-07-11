@@ -182,6 +182,7 @@ fn main() {
     let tray = SystemTray::new();
 
     tauri::Builder::default()
+        .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             list_output_devices,
             list_input_devices,
