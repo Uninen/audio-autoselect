@@ -151,8 +151,8 @@ export const useStore = defineStore('store', () => {
       if (!setupDone.value) {
         currentPage.value = 'settings'
       } else {
-        currentPage.value = 'settings'
-        // currentPage.value = 'main'
+        // currentPage.value = 'settings'
+        currentPage.value = 'main'
       }
 
       console.log('initial delay done')
