@@ -132,6 +132,9 @@ export const useStore = defineStore('store', () => {
     loadSettings()
 
     const window = getCurrent()
+    window.listen('tauri://blur', () => {
+      window?.hide()
+    })
 
     currentOuputDeviceName.value = systemDefaultAudioDeviceName.value
 

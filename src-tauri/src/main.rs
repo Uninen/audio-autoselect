@@ -110,7 +110,7 @@ async fn set_system_audio_output(name: &str) -> Result<String, String> {
 
 fn app_setup(app: &mut App) -> Result<(), Box<dyn std::error::Error>> {
     let main_window = app.get_window("main").expect("Main window not found");
-    let _ = main_window.set_always_on_top(true);
+    // let _ = main_window.set_always_on_top(true);
 
     // Set window to have no Dock icon
     app.set_activation_policy(ActivationPolicy::Accessory);
@@ -182,6 +182,7 @@ fn main() {
     let tray = SystemTray::new();
 
     tauri::Builder::default()
+        .setup(app_setup)
         .plugin(tauri_plugin_store::Builder::default().build())
         .invoke_handler(tauri::generate_handler![
             list_output_devices,
@@ -191,7 +192,6 @@ fn main() {
         ])
         .system_tray(tray)
         .on_system_tray_event(handle_tray_event)
-        .setup(app_setup)
         .run(ctx)
         .expect("error while running tauri application");
 }
